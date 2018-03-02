@@ -52,7 +52,7 @@ class Auth0LoginHandler(OAuthLoginHandler, Auth0Mixin):
     pass
 
 class Auth0OAuthenticator(OAuthenticator):
-
+    self.log.warning("Logging with Auth0")
     login_service = "Auth0"
     
     login_handler = Auth0LoginHandler
