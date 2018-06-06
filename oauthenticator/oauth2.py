@@ -79,7 +79,7 @@ class OAuthLoginHandler(BaseHandler):
 
     def get(self):
         redirect_uri = self.authenticator.get_callback_url(self)
-        self.log.info('OAuth redirect: %r', redirect_uri)
+        self.log.info('OAuthLoginHandler: setting redirect: %r', redirect_uri)
         state = self.get_state()
         self.set_state_cookie(state)
         self.authorize_redirect(
@@ -88,7 +88,6 @@ class OAuthLoginHandler(BaseHandler):
             scope=self.authenticator.scope,
             extra_params={'state': state},
             response_type='code')
-
 
 class OAuthCallbackHandler(BaseHandler):
     """Basic handler for OAuth callback. Calls authenticator to verify username."""
@@ -180,10 +179,14 @@ class OAuthCallbackHandler(BaseHandler):
     def get(self):
         self.check_arguments()
         user = yield self.login_user()
+        redirect_url = self.get_next_url(user)
+        self.log.info('oauth2: OAuthCallbackHandler for user: "{}"'.format(user))
+        self.log.info('oauth2: OAuthCallbackHandler redirecting to "{}"'.format(redirect_url))
         if user is None:
             # todo: custom error page?
             raise web.HTTPError(403)
-        self.redirect(self.get_next_url(user))
+        self.redirect(redirect_url)
+        
 
 
 class OAuthenticator(Authenticator):
